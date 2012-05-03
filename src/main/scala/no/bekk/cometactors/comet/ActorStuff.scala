@@ -26,7 +26,7 @@ object CaseLockMasterServer extends LiftActor {
     case addAListener @ AddAListener(cometActor: CA, _) =>
 			val op = createServer(cometActor)
 			val server = servers.getOrElseUpdate(key(cometActor), op)
-      println("Adds listener: "+cometActor.caseIdent+" - "+server.caseIdent)
+      println("Adds listener: "+cometActor.userIdent+" - "+server.caseIdent)
 			server ! addAListener
 
     case removeAListenerMsg @ RemoveAListener(cometActor: CA) =>
@@ -97,8 +97,8 @@ class CaseLockCometActor extends CometActor with CometListener {
     case LockCase(casen) if (casen.ident == caseIdent) => {
       currentCase = Some(casen)
       val lockStatusJs: JsCmd = casen match {
-        case c: Case if c.lockedBy.exists(_ == userIdent) => Call("LockTracker.greenLock")
-        case c: Case => Call("LockTracker.redLock", c.lockedBy.get)
+        case c: Case if c.lockedBy.exists(_ == userIdent) => Call("LockTracker.greenLock", uniqueId)
+        case c: Case => Call("LockTracker.redLock", uniqueId)
       }
       println("Lock js: "+lockStatusJs)
       partialUpdate(lockStatusJs)
@@ -107,7 +107,7 @@ class CaseLockCometActor extends CometActor with CometListener {
     case UnLockCase(casen) if (casen.ident == caseIdent) => {
       currentCase = Some(casen)
       var lockStatusJs: JsCmd = casen match {
-        case c: Case => Call("LockTracker.openLock")
+        case c: Case => Call("LockTracker.openLock", uniqueId)
       }
       println("Unlock js: "+lockStatusJs)
       partialUpdate(lockStatusJs)
@@ -117,8 +117,10 @@ class CaseLockCometActor extends CometActor with CometListener {
   def toggleLock = {
     currentCase.foreach(c =>{
       println("toggled case: "+c.ident+" - "+ userIdent)
-      if(c.isLocked) lockServer ! UnLockCase(c)
-      else {
+      if(c.isLocked){
+        c.lockedBy = None
+        lockServer ! UnLockCase(c)
+      } else {
         c.lockedBy = Some(userIdent)
         lockServer ! LockCase(c)
       }
@@ -127,7 +129,7 @@ class CaseLockCometActor extends CometActor with CometListener {
   }
 
   def render = {
-    	"#locked *" #> <img src="images/Padlock-red.svg"></img> &
+    	"#locked *" #> SHtml.ajaxButton(<img src="images/Padlock-red.svg"></img>, () => Noop) &
 			"#lockButton *" #> SHtml.ajaxButton(<img src="images/Open_Padlock.svg"></img>, () => toggleLock) &
 			"#unlockButton *" #> SHtml.ajaxButton(<img src="images/Padlock-green.svg"></img>, () => toggleLock)
   }

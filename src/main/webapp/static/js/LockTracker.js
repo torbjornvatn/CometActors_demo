@@ -1,14 +1,20 @@
 LockTracker = (function() {
 
     return {
-		greenLock: function() {
-            alert("Fjall");
+		greenLock: function(cometId) {
+            $("#"+cometId).find('#unlockButton').show();
+            $("#"+cometId).find('#lockButton').hide();
+            $("#"+cometId).find('#locked').hide();
         },
-        redLock: function() {
-            alert("Hepp");
+        redLock: function(cometId) {
+            $("#"+cometId).find('#unlockButton').hide();
+            $("#"+cometId).find('#lockButton').hide();
+            $("#"+cometId).find('#locked').show();
         },
-        openLock: function() {
-            alert("Hopp");
+        openLock: function(cometId) {
+            $("#"+cometId).find('#unlockButton').hide();
+            $("#"+cometId).find('#lockButton').show();
+            $("#"+cometId).find('#locked').hide();
         }
 	};
 
