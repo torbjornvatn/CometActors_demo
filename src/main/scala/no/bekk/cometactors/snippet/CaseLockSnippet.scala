@@ -1,22 +1,28 @@
 package no.bekk.cometactors.snippet
 
+import net.liftweb._
+import http.S
+import util.Helpers._
+
 class CaseLockSnippet {
 
   def view = {
+    val caseIdent = S.attr("caseIdent") openOr ""
+    val userIdent = S.attr("userIdent") openOr ""
 
-    <div id="lockActorContainer" class={"lift:comet?type=CaseLockCometActor;name="+
-                                        List(1, 1).mkString("_")}>
-			<span id="lockButton" style="display: none">
-				<a href="#"><img src="Open_Padlock.svg"/></a>
-			</span>
-			<span id="unlockButton" style="display: none">
-				<a href="#"><img src="Padlock-green.svg"/></a>
-			</span>
-			<span id="locked" style="display: none">
-        <img src="Padlock-red.svg"/>
-      </span>
-		</div>
-
+      "*" #> {
+          <div id="lockActorContainer" class={"lift:comet?type=CaseLockCometActor;name="+Seq(caseIdent, userIdent).mkString("_")}>
+            <span id="lockButton" style="">
+              <a href="#" class="">
+              </a>
+            </span>
+            <span id="unlockButton" style="display: none">
+              <a href="#">
+              </a>
+            </span>
+            <span id="locked" style="display: none">
+            </span>
+        </div>
+      }
   }
-
 }
