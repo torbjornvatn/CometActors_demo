@@ -8,16 +8,36 @@
 
 <div id="impress">
     <div class="step" data-x="0" data-y="0">
-        My first slide
+        Lift Comet Actors
     </div>
-    <div class="step" data-x="500" data-y="0">
+    <div class="step" data-x="0" data-y="800">
+        <ul>
+            <li>Lift: Web-rammeverk for Scala</li>
+            <li>Comet Actor: Actor-implementasjon i Lift</li>
+            <li>Oppdatere browser med push data</li>
+            <li>MasterServer - CometServer - CometActor</li>
+            <li>Demo: Låse saker i saksbehandling</li>
+        </ul>
+    </div>
+    <div class="step" data-x="0" data-y="-800" data-rotate="90">
+        This is slide 5 and it rotates in.
+    </div>
+    <div class="step" data-x="1000" data-y="-800" data-scale="0.5">
+        Første actor opprettes ved initsiell request og registrerer seg hos MasterServeren.
+        En Server opprettes av MasterServeren, og Actoren registreres som lytter
+        Andre actor opprettes ved initsiell request og registrerer seg hos MasterServeren.
+        Actor registreres som lytter på samme server som ble opprettet i steg 2.
+        ...
+        Når bruker navigerer bort fra side fjernes actor som lytter
+    </div>
+    <div class="step" data-x="1000" data-y="0">
         <div class="lift:CaseLockSnippet.view?caseIdent=1;userIdent=1"></div>
-    </div>
-    <div class="step" data-x="500" data-y="-400">
         <div class="lift:CaseLockSnippet.view?caseIdent=1;userIdent=2"></div>
-    </div>
-    <div class="step" data-x="500" data-y="-800" data-scale="0.5">
         <div class="lift:CaseLockSnippet.view?caseIdent=1;userIdent=3"></div>
+    </div>
+    <div class="step" data-x="1300" data-y="0" data-scale="0.4">
+        <div class="lift:CaseLockSnippet.view?caseIdent=2;userIdent=1"></div>
+        <div class="lift:CaseLockSnippet.view?caseIdent=2;userIdent=2"></div>
     </div>
     <div class="step" data-x="0" data-y="-800" data-rotate="90">
         This is slide 5 and it rotates in.
