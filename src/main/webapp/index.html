@@ -3,12 +3,13 @@
 <head>
     <title>Impress Tutorial</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link href="css/main.css" rel="stylesheet" />
 </head>
 <body>
 
 <div id="impress">
     <div class="step" data-x="0" data-y="0">
-        Lift Comet Actors
+        Lift <b>Comet</b> Actors
     </div>
     <div class="step" data-x="0" data-y="800">
         <ul>
@@ -19,8 +20,17 @@
             <li>Demo: Låse saker i saksbehandling</li>
         </ul>
     </div>
-    <div class="step" data-x="0" data-y="-800" data-rotate="90">
-        This is slide 5 and it rotates in.
+    <div class="step slide" data-x="500" data-y="-800" data-scale="0.5">
+        <div style="float: left;">
+            <div class="lift:CaseLockSnippet.view?caseIdent=1;userIdent=1"></div>
+            <div class="lift:CaseLockSnippet.view?caseIdent=1;userIdent=2"></div>
+            <div class="lift:CaseLockSnippet.view?caseIdent=1;userIdent=3"></div>
+        </div>
+        <div style="float: right;" class="lift:CaseLockServerSnippet.view?caseIdent=1"></div>
+    </div>
+    <div class="step" data-x="1300" data-y="0" data-scale="0.4">
+        <div class="lift:CaseLockSnippet.view?caseIdent=2;userIdent=1"></div>
+        <div class="lift:CaseLockSnippet.view?caseIdent=2;userIdent=2"></div>
     </div>
     <div class="step" data-x="1000" data-y="-800" data-scale="0.5">
         Første actor opprettes ved initsiell request og registrerer seg hos MasterServeren.
@@ -30,26 +40,16 @@
         ...
         Når bruker navigerer bort fra side fjernes actor som lytter
     </div>
-    <div class="step" data-x="1000" data-y="0">
-        <div class="lift:CaseLockSnippet.view?caseIdent=1;userIdent=1"></div>
-        <div class="lift:CaseLockSnippet.view?caseIdent=1;userIdent=2"></div>
-        <div class="lift:CaseLockSnippet.view?caseIdent=1;userIdent=3"></div>
-    </div>
-    <div class="step" data-x="1300" data-y="0" data-scale="0.4">
-        <div class="lift:CaseLockSnippet.view?caseIdent=2;userIdent=1"></div>
-        <div class="lift:CaseLockSnippet.view?caseIdent=2;userIdent=2"></div>
-    </div>
-    <div class="step" data-x="0" data-y="-800" data-rotate="90">
-        This is slide 5 and it rotates in.
-    </div>
-    <div class="step" data-x="-2600" data-y="-800" data-rotate-x="30" data-rotate-y="-60" data-rotate-z="90"
+    <div class="step" data-x="-2600" data-y="-800" data-rotate-x="10" data-rotate-y="-30" data-rotate-z="40"
          data-scale="4">
         This is slide 7 and it has a 3D transition AND a scale.
     </div>
+    <div id="overview" class="step" data-x="3000" data-y="1500" data-scale="10">
+    </div>
 </div>
-<script type="text/javascript" src="/static/js/impress.js"></script>
-<script type="text/javascript" src="/static/js/jquery-1.7.2.min.js"></script>
-<script type="text/javascript" src="/static/js/LockTracker.js"></script>
+<script type="text/javascript" src="/js/impress.js"></script>
+<script type="text/javascript" src="/js/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="/js/LockTracker.js"></script>
 <script>impress().init();</script>
 </body>
 </html>
