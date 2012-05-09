@@ -12,6 +12,7 @@ class CaseLockSnippet {
 
       "*" #> {
           <div id="lockActorContainer" class={"lift:comet?type=CaseLockCometActor;name="+Seq(caseIdent, userIdent).mkString("_")}>
+            <p>#{userIdent}</p>
             <span id="lockButton" style="">
               <a href="#" class="">
               </a>
