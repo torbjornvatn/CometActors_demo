@@ -28,13 +28,12 @@
     doesn't do any harm and gives us a fresh start.
 */
 
-html, body, div, span, applet, object, iframe,
-h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+html, body, div, span, applet, object, iframe, h2, h3, h4, h5, h6, p, blockquote, pre,
 a, abbr, acronym, address, big, cite, code,
 del, dfn, em, img, ins, kbd, q, s, samp,
 small, strike, strong, sub, sup, tt, var,
 b, u, i, center,
-dl, dt, dd, ol, ul, li,
+dl, dt, dd, ol,
 fieldset, form, label, legend,
 table, caption, tbody, tfoot, thead, tr, th, td,
 article, aside, canvas, details, embed,
@@ -58,7 +57,7 @@ body {
     line-height: 1;
 }
 ol, ul {
-    list-style: none;
+    line-height: 2;
 }
 blockquote, q {
     quotes: none;
@@ -165,7 +164,7 @@ a:focus {
 
 .step {
     position: relative;
-    width: 900px;
+    width: 1000px;
     padding: 40px;
     margin: 20px auto;
 
@@ -209,7 +208,7 @@ a:focus {
 .slide {
     display: block;
 
-    width: 900px;
+    width: 1000px;
     height: 750px;
     padding: 40px 60px;
 
@@ -268,7 +267,7 @@ a:focus {
 }
 
 #title h1 {
-    font-size: 190px;
+    font-size: 100px;
 
     -webkit-transform: translateZ(50px);
     -moz-transform:    translateZ(50px);

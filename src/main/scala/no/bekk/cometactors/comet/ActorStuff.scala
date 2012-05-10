@@ -23,7 +23,6 @@ object CaseLockMasterServer extends LiftActor {
     case addAListener @ AddAListener(cometActor: CA, _) =>
 			val op = createServer(cometActor)
 			val server = servers.getOrElseUpdate(key(cometActor), op)
-      println("Adds listener: "+cometActor.userIdent+" - "+server.caseIdent)
 			server ! addAListener
 
     case removeAListenerMsg @ RemoveAListener(cometActor: CA) =>
@@ -33,12 +32,10 @@ object CaseLockMasterServer extends LiftActor {
 			servers.remove(key(lm))
 
     case lc @ LockCase(casen) => {
-      println("Master got lock msg: "+casen.ident+" servers: "+ servers(1))
 			get(casen.ident).foreach(server => server ! lc)
     }
 
     case ulc @ UnLockCase(casen) => {
-      println("Master got unlock msg")
 			get(casen.ident).foreach(server => server ! ulc)
     }
   }
@@ -111,14 +108,12 @@ class CaseLockCometActor extends CometActor with CometListener {
       val lockStatusJs: JsCmd = casen match {
         case c: Case => Call("LockTracker.openLock", uniqueId)
       }
-      println("Unlock js: "+lockStatusJs)
       partialUpdate(lockStatusJs)
     }
   }
 
   def toggleLock = {
     currentCase.foreach(c =>{
-      println("toggled case: "+c.ident+" - "+ userIdent)
       if(c.isLocked){
         c.lockedBy = None
         lockServer ! UnLockCase(c)

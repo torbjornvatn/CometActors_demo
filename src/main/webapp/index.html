@@ -13,6 +13,7 @@
         Lift <b>Comet</b> Actors
     </div>
     <div class="step slide" data-x="0" data-y="1000">
+        <h1>Introduksjon</h1>
         <ul>
             <li>Lift: Web-rammeverk for Scala</li>
             <li>Comet Actor: Actor-implementasjon i Lift</li>
@@ -37,42 +38,61 @@
         <div style="float: right;" class="lift:CaseLockServerSnippet.view?caseIdent=2"></div>
     </div>
     <div class="step slide" data-x="1000" data-y="-800" data-scale="0.5">
-        Første actor opprettes ved initsiell request og registrerer seg hos MasterServeren.
+        <h1>Initsialisering 1</h1>
+        Første actor opprettes ved initsiell request...
         <pre class="prettyprint">
 div class="lift:CaseLockSnippet.view?caseIdent=1;userIdent=1"</pre>
         <br><pre class="prettyprint">
-def view = {
+class CaseLockSnippet {
+  def view = {
+    val caseIdent = S.attr("caseIdent") openOr ""
+    val userIdent = S.attr("userIdent") openOr ""
     "*" #> {
         div id="lockActorContainer" class={
             "lift:comet?type=CaseLockCometActor;name="+
              Seq(caseIdent, userIdent).mkString("_")}
     }
+  }
 }</pre>
-        <br>
-        <pre class="prettyprint">
-private lazy val lockServer = CaseLockMasterServer
-override def registerWith = lockServer</pre>
-
     </div>
     <div class="step slide" data-x="1000" data-y="-400" data-scale="0.5">
-        En Server opprettes av MasterServeren, og Actoren registreres som lytter
+        <h1>Initsialisering 2</h1>
+        ... og registrerer seg hos MasterServeren.
+        <pre class="prettyprint">
+class CaseLockCometActor extends
+            CometActor with CometListener {
+  lazy val caseIdent = name.open_!.split("_")(0).toInt
+  lazy val userIdent = name.open_!.split("_")(1).toInt
+  var currentCase: Option[Case] = None
 
+  private lazy val lockServer = CaseLockMasterServer
+  override def registerWith = lockServer
+}</pre>
     </div>
     <div class="step slide" data-x="1000" data-y="0" data-scale="0.5">
-        En Server opprettes av MasterServeren, og Actoren registreres som lytter
-        Andre actor opprettes ved initsiell request og registrerer seg hos MasterServeren.
-        Actor registreres som lytter på samme server som ble opprettet i steg 2.
-        ...
-        Når bruker navigerer bort fra side fjernes actor som lytter
+        <img src="images/registrerCometActor.png"></img>
     </div>
     <div class="step slide" data-x="1000" data-y="400" data-scale="0.5">
-        En Server opprettes av MasterServeren, og Actoren registreres som lytter
-        Andre actor opprettes ved initsiell request og registrerer seg hos MasterServeren.
-        Actor registreres som lytter på samme server som ble opprettet i steg 2.
-        ...
-        Når bruker navigerer bort fra side fjernes actor som lytter
+        <h1>Initsialisering 3</h1>
+        Server opprettes av MasterServeren, og Actoren registreres som lytter
+        <pre class="prettyprint">
+object CaseLockMasterServer extends LiftActor {
+    private val servers = new HashMap[Int, LM]()
+    def createServer(cometActor: CA): LM =
+            new CaseLockServer(cometActor.caseIdent)
+
+    protected def messageHandler: PartialFunction[Any, Unit] = {
+        case addAListener @ AddAListener(cometActor: CA, _) =>
+            val op = createServer(cometActor)
+            val server = servers.getOrElseUpdate(key(cometActor), op)
+            server ! addAListener
+    }
+}</pre>
     </div>
     <div class="step slide" data-x="1000" data-y="800" data-scale="0.5">
+        <img src="images/registrerServer.png"></img>
+    </div>
+    <div class="step slide" data-x="1000" data-y="1200" data-scale="0.5">
         En Server opprettes av MasterServeren, og Actoren registreres som lytter
         Andre actor opprettes ved initsiell request og registrerer seg hos MasterServeren.
         Actor registreres som lytter på samme server som ble opprettet i steg 2.
