@@ -9,10 +9,10 @@
 <body onload="prettyPrint()">
 
 <div id="impress">
-    <div class="step" data-x="0" data-y="0">
+    <div class="step" data-x="-16000" data-y="-1000">
         Lift <b>Comet</b> Actors
     </div>
-    <div class="step slide" data-x="0" data-y="1000">
+    <div class="step slide" data-x="-16000" data-y="3000">
         <h1>Introduksjon</h1>
         <ul>
             <li>Lift: Web-rammeverk for Scala</li>
@@ -22,11 +22,12 @@
             <li>Demo: Låse saker i saksbehandling</li>
         </ul>
     </div>
-	<div class="step slide" data-x="1000" data-y="0" data-scale="0.5">
+	<div class="step slide" data-x="-1000" data-y="-1000" data-scale="0.5">
+		<h1>Initialisering 1</h1>
 		<img src="images/registrerCometActor.png"></img>
 	</div>
-    <div class="step slide" data-x="1000" data-y="-800" data-scale="0.5">
-        <h1>Initsialisering 1</h1>
+    <div class="step slide" data-x="-400" data-y="-1500" data-scale="0.5">
+        <h1>Initialisering 2</h1>
         Første actor opprettes ved initsiell request...
         <pre class="prettyprint">
 div class="lift:CaseLockSnippet.view?caseIdent=1;userIdent=1"</pre>
@@ -43,8 +44,8 @@ class CaseLockSnippet {
   }
 }</pre>
     </div>
-    <div class="step slide" data-x="1000" data-y="-400" data-scale="0.5">
-        <h1>Initsialisering 2</h1>
+    <div class="step slide" data-x="200" data-y="-2000" data-scale="0.5">
+        <h1>Initialisering 3</h1>
         ... og registrerer seg hos MasterServeren.
         <pre class="prettyprint">
 class CaseLockCometActor extends
@@ -58,10 +59,11 @@ class CaseLockCometActor extends
 }</pre>
     </div>
 
-	<div class="step slide" data-x="1000" data-y="800" data-scale="0.5">
+	<div class="step slide" data-x="800" data-y="-1500" data-scale="0.5">
+		<h1>Initialisering 4</h1>
 		<img src="images/registrerServer.png"></img>
 	</div>
-    <div class="step slide" data-x="1000" data-y="400" data-scale="0.5">
+    <div class="step slide" data-x="1400" data-y="-1000" data-scale="0.5">
         <h1>Initsialisering 3</h1>
         Server opprettes av MasterServeren, og Actoren registreres som lytter
         <pre class="prettyprint">
@@ -79,17 +81,7 @@ object CaseLockMasterServer extends LiftActor {
 }</pre>
     </div>
 
-    <div class="step slide" data-x="1000" data-y="1200" data-scale="0.5">
-        En Server opprettes av MasterServeren, og Actoren registreres som lytter
-        Andre actor opprettes ved initsiell request og registrerer seg hos MasterServeren.
-        Actor registreres som lytter på samme server som ble opprettet i steg 2.
-        ...
-        Når bruker navigerer bort fra side fjernes actor som lytter
-    </div>
-	<div class="step slide" data-x="1000" data-y="1600" data-scale="0.5">
-		<img src="images/meldinger.png"></img>
-	</div>
-	<div class="step" data-x="-2000" data-y="1000" data-scale="1">
+	<div class="step" data-x="-16000" data-y="1000" data-scale="1">
 		<div style="float: left;" class="lift:CaseLockServerSnippet.view?caseIdent=1"></div>
 		<div style="float: right;">
 			<div class="lift:CaseLockSnippet.view?caseIdent=1;userIdent=1"></div>
@@ -97,17 +89,90 @@ object CaseLockMasterServer extends LiftActor {
 			<div class="lift:CaseLockSnippet.view?caseIdent=1;userIdent=3"></div>
 		</div>
 	</div>
-	<div class="step" data-x="-2800" data-y="600" data-scale="2">
+	<div class="step" data-x="-16800" data-y="600" data-scale="2">
 		<div style="float: left;">
 			<div class="lift:CaseLockSnippet.view?caseIdent=2;userIdent=1"></div>
 			<div class="lift:CaseLockSnippet.view?caseIdent=2;userIdent=2"></div>
 		</div>
 		<div style="float: right;" class="lift:CaseLockServerSnippet.view?caseIdent=2"></div>
 	</div>
-    <!--div id="overview" class="step" data-x="3000" data-y="1500" data-scale="10">
-    </div-->
-    <div class="step slide" data-x="-2600" data-y="-800" data-rotate-x="10" data-rotate-y="-30" data-rotate-z="40">
+	<div class="step slide" data-x="1400" data-y="-500" data-scale="0.5">
+		<h1>Meldingssending 1</h1>
+		<img src="images/meldinger.png"></img>
+	</div>
+	<div class="step slide" data-x="800" data-y="0" data-scale="0.5">
+		<h1>Meldingssending 2</h1>
+		Callback fra knappen trigger sending av melding til masterserver
+		<pre class="prettyprint">
+def toggleLock = {
+	currentCase.foreach(c => {
+	    if (c.isLocked) {
+			        c.lockedBy = None
+			        lockServer ! UnLockCase(c)
+			    } else {
+			        c.lockedBy = Some(userIdent)
+			        lockServer ! LockCase(c)
+		    }
+			})
+	Noop
+}</pre>
+	</div>
+	<div class="step slide" data-x="200" data-y="500" data-scale="0.5">
+		<h1>Meldingssending 3</h1>
+		Masterserveren sender melding videre til den gitte serveren
+		<pre class="prettyprint">
+protected def messageHandler: PartialFunction[Any, Unit] = {
+			case lc @ LockCase(casen) => {
+			    get(casen.ident).foreach(server => server ! lc)
+			}
+			case ulc @ UnLockCase(casen) => {
+			    get(casen.ident).foreach(server => server ! ulc)
+			}
+}</pre>
+		</div>
+	<div class="step slide" data-x="200" data-y="1000" data-scale="0.5">
+		<h1>Meldingssending 4</h1>
+		Serveren oppdaterer sine lyttere
+		<pre class="prettyprint">
+override def lowPriority = {
+	case lc: LockCase => {
+	  updateListeners(lc)
+	}
+	case ulc: UnLockCase => {
+	  updateListeners(ulc)
+	}
+  }</pre>
+		</div>
+	<div class="step slide" data-x="200" data-y="1500" data-scale="0.5">
+		<h1>Meldingssending 5</h1>
+		Actorene oppdaterer siden ved hjelp av javascript
+		<pre class="prettyprint">
+override def lowPriority = {
+	case LockCase(casen) if (casen.ident == caseIdent) => {
+			    currentCase = Some(casen)
+			    val lockStatusJs: JsCmd = casen match {
+			        case c: Case if c.lockedBy.exists(_ == userIdent) =>
+                        Call("LockTracker.greenLock", uniqueId)
+			        case c: Case => Call("LockTracker.redLock", uniqueId)
+			    }
+			    partialUpdate(lockStatusJs)
+	}
+  }</pre>
+		</div>
+
+	<div class="step slide" data-x="200" data-y="2200" data-scale="0.5">
+		<h1>Utfordringer</h1>
+		<ul>
+			<li>Asynkront</li>
+			<li>Når skal en server fjernes?</li>
+			<li>...</li>
+		</ul>
+	</div>
+
+    <div id="overview" class="step" data-x="0" data-y="1500" data-scale="10">
     </div>
+    <!--div class="step slide" data-x="-2600" data-y="-800" data-rotate-x="10" data-rotate-y="-30" data-rotate-z="40">
+    </div-->
 </div>
 <script type="text/javascript" src="/js/impress.js"></script>
 <script type="text/javascript" src="/js/jquery-1.7.2.min.js"></script>

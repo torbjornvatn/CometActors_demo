@@ -99,7 +99,6 @@ class CaseLockCometActor extends CometActor with CometListener {
         case c: Case if c.lockedBy.exists(_ == userIdent) => Call("LockTracker.greenLock", uniqueId)
         case c: Case => Call("LockTracker.redLock", uniqueId)
       }
-      println("Lock js: "+lockStatusJs)
       partialUpdate(lockStatusJs)
     }
 
