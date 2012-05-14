@@ -54,8 +54,8 @@ class CaseLockCometActor extends
   lazy val userIdent = name.open_!.split("_")(1).toInt
   var currentCase: Option[Case] = None
 
-  private lazy val lockServer = CaseLockMasterServer
-  override def registerWith = lockServer
+  private lazy val lockMasterServer = CaseLockMasterServer
+  override def registerWith = lockMasterServer
 }</pre>
     </div>
 
@@ -64,7 +64,7 @@ class CaseLockCometActor extends
 		<img src="images/registrerServer.png"></img>
 	</div>
     <div class="step slide" data-x="1400" data-y="-1000" data-scale="0.5">
-        <h1>Initsialisering 3</h1>
+        <h1>Initsialisering 5</h1>
         Server opprettes av MasterServeren, og Actoren registreres som lytter
         <pre class="prettyprint">
 object CaseLockMasterServer extends LiftActor {
@@ -108,10 +108,10 @@ def toggleLock = {
 	currentCase.foreach(c => {
 	    if (c.isLocked) {
 			        c.lockedBy = None
-			        lockServer ! UnLockCase(c)
+			        lockMasterServer ! UnLockCase(c)
 			    } else {
 			        c.lockedBy = Some(userIdent)
-			        lockServer ! LockCase(c)
+			        lockMasterServer ! LockCase(c)
 		    }
 			})
 	Noop
