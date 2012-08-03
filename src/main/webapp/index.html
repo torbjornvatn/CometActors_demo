@@ -1,55 +1,184 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <title>Impress Tutorial</title>
+    <title>Lift Comet Actors</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <link href="css/main.css" rel="stylesheet" />
+    <link href="css/prettify.css" type="text/css" rel="stylesheet" />
 </head>
-<body>
+<body onload="prettyPrint()">
 
 <div id="impress">
-    <div class="step" data-x="0" data-y="0">
+    <div class="step" data-x="-16000" data-y="-1000">
         Lift <b>Comet</b> Actors
     </div>
-    <div class="step" data-x="0" data-y="800">
+    <div class="step slide" data-x="-16000" data-y="3000">
+        <h1>Introduksjon</h1>
         <ul>
             <li>Lift: Web-rammeverk for Scala</li>
             <li>Comet Actor: Actor-implementasjon i Lift</li>
-            <li>Oppdatere browser med push data</li>
-            <li>MasterServer - CometServer - CometActor</li>
+            <li>Formål: Oppdatere browser med push data</li>
+            <li>Komponenter: MasterServer - CometServer - CometActor</li>
             <li>Demo: Låse saker i saksbehandling</li>
         </ul>
     </div>
-    <div class="step slide" data-x="500" data-y="-800" data-scale="0.5">
-        <div style="float: left;">
-            <div class="lift:CaseLockSnippet.view?caseIdent=1;userIdent=1"></div>
-            <div class="lift:CaseLockSnippet.view?caseIdent=1;userIdent=2"></div>
-            <div class="lift:CaseLockSnippet.view?caseIdent=1;userIdent=3"></div>
-        </div>
-        <div style="float: right;" class="lift:CaseLockServerSnippet.view?caseIdent=1"></div>
+	<div class="step slide" data-x="-1000" data-y="-1000" data-scale="0.5">
+		<h1>Initialisering 1</h1>
+		<img src="images/registrerCometActor.png"></img>
+	</div>
+    <div class="step slide" data-x="-400" data-y="-1500" data-scale="0.5">
+        <h1>Initialisering 2</h1>
+        Første actor opprettes ved initsiell request...
+        <pre class="prettyprint">
+div class="lift:CaseLockSnippet.view?caseIdent=1;userIdent=1"</pre>
+        <br><pre class="prettyprint">
+class CaseLockSnippet {
+  def view = {
+    val caseIdent = S.attr("caseIdent") openOr ""
+    val userIdent = S.attr("userIdent") openOr ""
+    "*" #> {
+        div id="lockActorContainer" class={
+            "lift:comet?type=CaseLockCometActor;name="+
+             Seq(caseIdent, userIdent).mkString("_")}
+    }
+  }
+}</pre>
     </div>
-    <div class="step" data-x="1300" data-y="0" data-scale="0.4">
-        <div class="lift:CaseLockSnippet.view?caseIdent=2;userIdent=1"></div>
-        <div class="lift:CaseLockSnippet.view?caseIdent=2;userIdent=2"></div>
+    <div class="step slide" data-x="200" data-y="-2000" data-scale="0.5">
+        <h1>Initialisering 3</h1>
+        ... og registrerer seg hos MasterServeren.
+        <pre class="prettyprint">
+class CaseLockCometActor extends
+            CometActor with CometListener {
+  lazy val caseIdent = name.open_!.split("_")(0).toInt
+  lazy val userIdent = name.open_!.split("_")(1).toInt
+  var currentCase: Option[Case] = None
+
+  private lazy val lockMasterServer = CaseLockMasterServer
+  override def registerWith = lockMasterServer
+}</pre>
     </div>
-    <div class="step" data-x="1000" data-y="-800" data-scale="0.5">
-        Første actor opprettes ved initsiell request og registrerer seg hos MasterServeren.
-        En Server opprettes av MasterServeren, og Actoren registreres som lytter
-        Andre actor opprettes ved initsiell request og registrerer seg hos MasterServeren.
-        Actor registreres som lytter på samme server som ble opprettet i steg 2.
-        ...
-        Når bruker navigerer bort fra side fjernes actor som lytter
+
+	<div class="step slide" data-x="800" data-y="-1500" data-scale="0.5">
+		<h1>Initialisering 4</h1>
+		<img src="images/registrerServer.png"></img>
+	</div>
+    <div class="step slide" data-x="1400" data-y="-1000" data-scale="0.5">
+        <h1>Initsialisering 5</h1>
+        Server opprettes av MasterServeren, og Actoren registreres som lytter
+        <pre class="prettyprint">
+object CaseLockMasterServer extends LiftActor {
+    private val servers = new HashMap[Int, LM]()
+    def createServer(cometActor: CA): LM =
+            new CaseLockServer(cometActor.caseIdent)
+
+    protected def messageHandler: PartialFunction[Any, Unit] = {
+        case addAListener @ AddAListener(cometActor: CA, _) =>
+            val op = createServer(cometActor)
+            val server = servers.getOrElseUpdate(key(cometActor), op)
+            server ! addAListener
+    }
+}</pre>
     </div>
-    <div class="step" data-x="-2600" data-y="-800" data-rotate-x="10" data-rotate-y="-30" data-rotate-z="40"
-         data-scale="4">
-        This is slide 7 and it has a 3D transition AND a scale.
+
+	<div class="step" data-x="-16000" data-y="1000" data-scale="1">
+		<div style="float: left;" class="lift:CaseLockServerSnippet.view?caseIdent=1"></div>
+		<div style="float: right;">
+			<div class="lift:CaseLockSnippet.view?caseIdent=1;userIdent=1"></div>
+			<div class="lift:CaseLockSnippet.view?caseIdent=1;userIdent=2"></div>
+			<div class="lift:CaseLockSnippet.view?caseIdent=1;userIdent=3"></div>
+		</div>
+	</div>
+	<div class="step" data-x="-16800" data-y="600" data-scale="2">
+		<div style="float: left;">
+			<div class="lift:CaseLockSnippet.view?caseIdent=2;userIdent=1"></div>
+			<div class="lift:CaseLockSnippet.view?caseIdent=2;userIdent=2"></div>
+		</div>
+		<div style="float: right;" class="lift:CaseLockServerSnippet.view?caseIdent=2"></div>
+	</div>
+	<div class="step slide" data-x="1400" data-y="-500" data-scale="0.5">
+		<h1>Meldingssending 1</h1>
+		<img src="images/meldinger.png"></img>
+	</div>
+	<div class="step slide" data-x="800" data-y="0" data-scale="0.5">
+		<h1>Meldingssending 2</h1>
+		Callback fra knappen trigger sending av melding til masterserver
+		<pre class="prettyprint">
+def toggleLock = {
+	currentCase.foreach(c => {
+	    if (c.isLocked) {
+			        c.lockedBy = None
+			        lockMasterServer ! UnLockCase(c)
+			    } else {
+			        c.lockedBy = Some(userIdent)
+			        lockMasterServer ! LockCase(c)
+		    }
+			})
+	Noop
+}</pre>
+	</div>
+	<div class="step slide" data-x="200" data-y="500" data-scale="0.5">
+		<h1>Meldingssending 3</h1>
+		Masterserveren sender melding videre til den gitte serveren
+		<pre class="prettyprint">
+protected def messageHandler: PartialFunction[Any, Unit] = {
+			case lc @ LockCase(casen) => {
+			    get(casen.ident).foreach(server => server ! lc)
+			}
+			case ulc @ UnLockCase(casen) => {
+			    get(casen.ident).foreach(server => server ! ulc)
+			}
+}</pre>
+		</div>
+	<div class="step slide" data-x="200" data-y="1000" data-scale="0.5">
+		<h1>Meldingssending 4</h1>
+		Serveren oppdaterer sine lyttere
+		<pre class="prettyprint">
+override def lowPriority = {
+	case lc: LockCase => {
+	  updateListeners(lc)
+	}
+	case ulc: UnLockCase => {
+	  updateListeners(ulc)
+	}
+  }</pre>
+		</div>
+	<div class="step slide" data-x="200" data-y="1500" data-scale="0.5">
+		<h1>Meldingssending 5</h1>
+		Actorene oppdaterer siden ved hjelp av javascript
+		<pre class="prettyprint">
+override def lowPriority = {
+	case LockCase(casen) if (casen.ident == caseIdent) => {
+			    currentCase = Some(casen)
+			    val lockStatusJs: JsCmd = casen match {
+			        case c: Case if c.lockedBy.exists(_ == userIdent) =>
+                        Call("LockTracker.greenLock", uniqueId)
+			        case c: Case => Call("LockTracker.redLock", uniqueId)
+			    }
+			    partialUpdate(lockStatusJs)
+	}
+  }</pre>
+		</div>
+
+	<div class="step slide" data-x="200" data-y="2200" data-scale="0.5">
+		<h1>Utfordringer</h1>
+		<ul>
+			<li>Asynkront</li>
+			<li>Når skal en server fjernes?</li>
+			<li>Deadlock</li>
+		</ul>
+	</div>
+
+    <div id="overview" class="step" data-x="0" data-y="1500" data-scale="10">
     </div>
-    <div id="overview" class="step" data-x="3000" data-y="1500" data-scale="10">
-    </div>
+    <!--div class="step slide" data-x="-2600" data-y="-800" data-rotate-x="10" data-rotate-y="-30" data-rotate-z="40">
+    </div-->
 </div>
 <script type="text/javascript" src="/js/impress.js"></script>
 <script type="text/javascript" src="/js/jquery-1.7.2.min.js"></script>
 <script type="text/javascript" src="/js/LockTracker.js"></script>
+<script type="text/javascript" src="/js/prettify.js"></script>
+<script type="text/javascript" src="/js/lang-scala.js"></script>
 <script>impress().init();</script>
 </body>
 </html>
