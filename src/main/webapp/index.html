@@ -3,10 +3,11 @@
 <head>
     <title>Lift Comet Actors</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link href="css/shCore.css" rel="stylesheet" type="text/css" />
+    <link href="css/shThemeDefault.css" rel="stylesheet" type="text/css" />
     <link href="css/main.css" rel="stylesheet" />
-    <link href="css/prettify.css" type="text/css" rel="stylesheet" />
 </head>
-<body onload="prettyPrint()">
+<body>
 
 <div id="impress">
     <div class="step" data-x="-16000" data-y="-1000">
@@ -15,48 +16,48 @@
     <div class="step slide" data-x="-16000" data-y="3000">
         <h1>Introduksjon</h1>
         <ul>
-            <li>Lift: Web-rammeverk for Scala</li>
-            <li>Comet Actor: Actor-implementasjon i Lift</li>
-            <li>Formål: Oppdatere browser med push data</li>
-            <li>Komponenter: MasterServer - CometServer - CometActor</li>
-            <li>Demo: Låse saker i saksbehandling</li>
+            <li><b>Lift:</b> Web-rammeverk for Scala</li>
+            <li><b>Comet Actors:</b> Actor-implementasjon i Lift</li>
+            <li><b>Formål:</b> Oppdatere browser med push data</li>
+            <li><b>Komponenter:</b> Master Server - Lock Server - Comet Actor</li>
+            <li><b>Demo:</b> Låse saker i saksbehandling</li>
         </ul>
     </div>
 	<div class="step slide" data-x="-1000" data-y="-1000" data-scale="0.5">
-		<h1>Initialisering 1</h1>
-		<img src="images/registrerCometActor.png"></img>
+		<h1>Initialisering</h1>
+		<img class="diagram" src="images/Init1.png"></img>
 	</div>
-    <div class="step slide" data-x="-400" data-y="-1500" data-scale="0.5">
-        <h1>Initialisering 2</h1>
-        Første actor opprettes ved initsiell request...
-        <pre class="prettyprint">
-div class="lift:CaseLockSnippet.view?caseIdent=1;userIdent=1"</pre>
-        <br><pre class="prettyprint">
-class CaseLockSnippet {
-  def view = {
-    val caseIdent = S.attr("caseIdent") openOr ""
-    val userIdent = S.attr("userIdent") openOr ""
-    "*" #> {
-        div id="lockActorContainer" class={
-            "lift:comet?type=CaseLockCometActor;name="+
-             Seq(caseIdent, userIdent).mkString("_")}
-    }
-  }
-}</pre>
+  <div class="step slide" data-x="-400" data-y="-1500" data-scale="0.5">
+    <h1>Embedded Actor</h1>
+      En vanlig Lift Snippet
+      <pre class="brush: xml">
+        &#60;div class="lift:CaseLockSnippet.view?caseIdent=1;userIdent=1"&#62;
+      </pre>
+      Første actor opprettes ved initsiell request
+      <pre class="brush: scala; highlight: 10">
+      class CaseLockSnippet {
+
+        def view = {
+      
+          val caseIdent = S.attr("caseIdent") openOr ""
+          val userIdent = S.attr("userIdent") openOr ""
+      
+          "*" #> 
+              &#60;div id="lockActorContainer" 
+                class={"lift:comet?type=CaseLockCometActor;name="+
+                Seq(caseIdent, userIdent).mkString("_")}&#62; ...
+      </pre>
     </div>
     <div class="step slide" data-x="200" data-y="-2000" data-scale="0.5">
-        <h1>Initialisering 3</h1>
-        ... og registrerer seg hos MasterServeren.
-        <pre class="prettyprint">
-class CaseLockCometActor extends
+        <h1>Registrere hos Master</h1>
+        Actor'en registerer seg hos master serveren
+        <pre class="brush: scala; highlight: 5">
+          class CaseLockCometActor extends
             CometActor with CometListener {
-  lazy val caseIdent = name.open_!.split("_")(0).toInt
-  lazy val userIdent = name.open_!.split("_")(1).toInt
-  var currentCase: Option[Case] = None
 
-  private lazy val lockMasterServer = CaseLockMasterServer
-  override def registerWith = lockMasterServer
-}</pre>
+            private lazy val lockMasterServer = CaseLockMasterServer
+            override def registerWith = lockMasterServer 
+          }</pre>
     </div>
 
 	<div class="step slide" data-x="800" data-y="-1500" data-scale="0.5">
@@ -64,7 +65,7 @@ class CaseLockCometActor extends
 		<img src="images/registrerServer.png"></img>
 	</div>
     <div class="step slide" data-x="1400" data-y="-1000" data-scale="0.5">
-        <h1>Initsialisering 5</h1>
+        <h1>Initialisering 5</h1>
         Server opprettes av MasterServeren, og Actoren registreres som lytter
         <pre class="prettyprint">
 object CaseLockMasterServer extends LiftActor {
@@ -177,8 +178,14 @@ override def lowPriority = {
 <script type="text/javascript" src="/js/impress.js"></script>
 <script type="text/javascript" src="/js/jquery-1.7.2.min.js"></script>
 <script type="text/javascript" src="/js/LockTracker.js"></script>
-<script type="text/javascript" src="/js/prettify.js"></script>
-<script type="text/javascript" src="/js/lang-scala.js"></script>
+<script type="text/javascript" src="/js/shCore.js"></script>
+<script type="text/javascript" src="/js/shBrushScala.js"></script>
+<script type="text/javascript" src="/js/shBrushXml.js"></script>
+<script type="text/javascript">
+  SyntaxHighlighter.defaults['gutter'] = false;
+  SyntaxHighlighter.defaults['toolbar'] = false;
+  SyntaxHighlighter.all()
+</script>
 <script>impress().init();</script>
 </body>
 </html>
