@@ -57,29 +57,31 @@
 
             private lazy val lockMasterServer = CaseLockMasterServer
             override def registerWith = lockMasterServer 
-          }</pre>
+          }
+        </pre>
     </div>
-
-	<div class="step slide" data-x="800" data-y="-1500" data-scale="0.5">
-		<h1>Initialisering 4</h1>
-		<img src="images/registrerServer.png"></img>
-	</div>
+	  <div class="step slide" data-x="800" data-y="-1500" data-scale="0.5">
+	    <img src="images/Init2.png" class="diagram""></img>
+	  </div>
     <div class="step slide" data-x="1400" data-y="-1000" data-scale="0.5">
-        <h1>Initialisering 5</h1>
-        Server opprettes av MasterServeren, og Actoren registreres som lytter
-        <pre class="prettyprint">
-object CaseLockMasterServer extends LiftActor {
-    private val servers = new HashMap[Int, LM]()
-    def createServer(cometActor: CA): LM =
-            new CaseLockServer(cometActor.caseIdent)
+        <h1>Registrere hos Lock Server</h1>
+        Lock Server opprettes av Master, og Actoren registreres som lytter
+        <pre class="brush: scala; highlight: [10, 12]">
+          object CaseLockMasterServer extends LiftActor {
+              private val servers = new HashMap[Int, ListenerManager]()
 
-    protected def messageHandler: PartialFunction[Any, Unit] = {
-        case addAListener @ AddAListener(cometActor: CA, _) =>
-            val op = createServer(cometActor)
-            val server = servers.getOrElseUpdate(key(cometActor), op)
-            server ! addAListener
-    }
-}</pre>
+              def createServer(cometActor: CA) =
+                      new CaseLockServer(cometActor.caseIdent)
+          
+              protected def messageHandler: PartialFunction[Any, Unit] = {
+                  case addAListener @ AddAListener(cometActor: CA, _) =>
+                      val op = createServer(cometActor)
+                      val server = servers.getOrElseUpdate(key(cometActor), op)
+
+                      server ! addAListener
+              }
+          }
+        </pre>
     </div>
 
 	<div class="step" data-x="-16000" data-y="1000" data-scale="1">
@@ -98,67 +100,78 @@ object CaseLockMasterServer extends LiftActor {
 		<div style="float: right;" class="lift:CaseLockServerSnippet.view?caseIdent=2"></div>
 	</div>
 	<div class="step slide" data-x="1400" data-y="-500" data-scale="0.5">
-		<h1>Meldingssending 1</h1>
-		<img src="images/meldinger.png"></img>
+    <h1>Låsemeldinger</h1>
+		<img src="images/Message1.png" class="diagram"></img>
 	</div>
 	<div class="step slide" data-x="800" data-y="0" data-scale="0.5">
-		<h1>Meldingssending 2</h1>
-		Callback fra knappen trigger sending av melding til masterserver
-		<pre class="prettyprint">
-def toggleLock = {
-	currentCase.foreach(c => {
-	    if (c.isLocked) {
-			        c.lockedBy = None
-			        lockMasterServer ! UnLockCase(c)
-			    } else {
-			        c.lockedBy = Some(userIdent)
-			        lockMasterServer ! LockCase(c)
-		    }
-			})
-	Noop
-}</pre>
+		<h1>Låsing av ulåst sak</h1>
+		Callback fra hengelåsen trigger sending av melding til Master
+		<pre class="brush: scala; highlight: [3, 5]">
+      def toggleLock = {
+        currentCase.foreach(c => {
+            if (c.isLockedByMe) {
+              c.lockedBy = None
+              lockMasterServer ! UnLockCase(c)
+            } else {
+              c.lockedBy = Some(userIdent)
+              lockMasterServer ! LockCase(c)
+            }
+        })
+      }
+    </pre>
 	</div>
 	<div class="step slide" data-x="200" data-y="500" data-scale="0.5">
-		<h1>Meldingssending 3</h1>
-		Masterserveren sender melding videre til den gitte serveren
-		<pre class="prettyprint">
-protected def messageHandler: PartialFunction[Any, Unit] = {
-			case lc @ LockCase(casen) => {
-			    get(casen.ident).foreach(server => server ! lc)
-			}
-			case ulc @ UnLockCase(casen) => {
-			    get(casen.ident).foreach(server => server ! ulc)
-			}
-}</pre>
+		<h1>Velg riktig Lock Server</h1>
+		Masterserveren sender melding videre til riktig server
+		<pre class="brush: scala; highlight: 7">
+      protected def messageHandler = {
+
+            case lc @ LockCase(casen) => 
+                get(casen.ident).foreach(server => server ! lc)
+            
+            case ulc @ UnLockCase(casen) => 
+                get(casen.ident).foreach(server => server ! ulc)
+
+      }
+    </pre>
 		</div>
-	<div class="step slide" data-x="200" data-y="1000" data-scale="0.5">
-		<h1>Meldingssending 4</h1>
-		Serveren oppdaterer sine lyttere
-		<pre class="prettyprint">
-override def lowPriority = {
-	case lc: LockCase => {
-	  updateListeners(lc)
-	}
-	case ulc: UnLockCase => {
-	  updateListeners(ulc)
-	}
-  }</pre>
+	  <div class="step slide" data-x="200" data-y="1000" data-scale="0.5">
+	  	<h1>Videresending av melding</h1>
+	  	Lock Server oppdaterer sine lyttere
+	  	<pre class="brush: scala">
+        override def lowPriority = {
+
+            case lc: LockCase => 
+              updateListeners(lc)
+
+            case ulc: UnLockCase => 
+              updateListeners(ulc)
+
+        }
+      </pre>
 		</div>
-	<div class="step slide" data-x="200" data-y="1500" data-scale="0.5">
-		<h1>Meldingssending 5</h1>
-		Actorene oppdaterer siden ved hjelp av javascript
-		<pre class="prettyprint">
-override def lowPriority = {
-	case LockCase(casen) if (casen.ident == caseIdent) => {
-			    currentCase = Some(casen)
-			    val lockStatusJs: JsCmd = casen match {
-			        case c: Case if c.lockedBy.exists(_ == userIdent) =>
-                        Call("LockTracker.greenLock", uniqueId)
-			        case c: Case => Call("LockTracker.redLock", uniqueId)
-			    }
-			    partialUpdate(lockStatusJs)
-	}
-  }</pre>
+	  <div class="step slide" data-x="200" data-y="1500" data-scale="0.5">
+	  	<h1>Oppdatering av låsikon</h1>
+      Actorene oppdaterer låsikonet sitt ved hjelp av <b>Javascript</b>
+	  	<pre class="brush: scala; highlight: [7, 14]">
+        override def lowPriority = {
+          case LockCase(casen) if (casen.ident == caseIdent) => {
+            currentCase = Some(casen)
+
+            val lockStatusJs: JsCmd = casen match {
+
+              case c: Case if c.lockedBy.exists(_ == userIdent) =>
+                Call("LockTracker.greenLock", uniqueId)
+
+              case c: Case => 
+                Call("LockTracker.redLock", uniqueId)
+            }
+
+            partialUpdate(lockStatusJs)
+
+          }
+        }
+      </pre>
 		</div>
 
 	<div class="step slide" data-x="200" data-y="2200" data-scale="0.5">
