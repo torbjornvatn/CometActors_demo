@@ -33,7 +33,7 @@
       <pre class="brush: xml">
         &#60;div class="lift:CaseLockSnippet.view?caseIdent=1;userIdent=1"&#62;
       </pre>
-      Første actor opprettes ved initsiell request
+      Første actor opprettes ved initiell request
       <pre class="brush: scala; highlight: 10">
       class CaseLockSnippet {
 
@@ -138,7 +138,7 @@
 	  <div class="step slide" data-x="200" data-y="1000" data-scale="0.5">
 	  	<h1>Videresending av melding</h1>
 	  	Lock Server oppdaterer sine lyttere
-	  	<pre class="brush: scala">
+	  	<pre class="brush: scala; highlight: 7">
         override def lowPriority = {
 
             case lc: LockCase => 
