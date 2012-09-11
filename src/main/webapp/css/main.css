@@ -710,5 +710,17 @@ a:focus {
 }
 
 ul {
-  list-style-type: none;
+   list-style: none;
+}
+
+li.plus:before {
+  padding-right: 15px;
+  content: "+";
+  font-weight: bold;
+}
+
+li.minus:before {
+  padding-right: 21px;
+  content: "-";
+  font-weight: bold;
 }
